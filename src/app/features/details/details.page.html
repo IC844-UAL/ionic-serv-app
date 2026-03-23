@@ -1,0 +1,147 @@
+<ion-content class="details-content" [fullscreen]="true">
+  @if (movieService.currentMovie(); as movie) {
+    <div class="hero-stage">
+      @if (posterUrl(movie); as src) {
+        <img
+          class="hero-stage__poster"
+          [src]="src"
+          [alt]="movie.Title" />
+      } @else {
+        <div class="hero-stage__poster hero-stage__poster--empty" aria-hidden="true"></div>
+      }
+
+      <div class="hero-stage__nav">
+        <ion-buttons>
+          <ion-back-button
+            defaultHref="/home"
+            text=""
+            class="hero-back">
+          </ion-back-button>
+        </ion-buttons>
+      </div>
+
+      <button
+        type="button"
+        class="poster-fav"
+        [class.poster-fav--active]="isFavorite(movie.imdbID)"
+        [attr.aria-label]="
+          isFavorite(movie.imdbID) ? 'Remove from favorites' : 'Add to favorites'
+        "
+        [attr.aria-pressed]="isFavorite(movie.imdbID)"
+        (click)="
+          movieService.toggleFavorite(toFavoriteMovie(movie)); $event.stopPropagation()
+        ">
+        <ion-icon
+          [name]="isFavorite(movie.imdbID) ? 'heart' : 'heart-outline'">
+        </ion-icon>
+      </button>
+    </div>
+
+    <div class="detail-basic">
+      <h1 class="detail-basic__title">{{ movie.Title }}</h1>
+      <p class="detail-basic__eyebrow">
+        @if (hasValue(movie.Type)) {
+          <span>{{ movie.Type | titlecase }} · </span>
+        }
+        {{ movie.Year }}
+      </p>
+
+      <div class="detail-basic__facts">
+        @if (hasValue(movie.Rated)) {
+          <span class="pill">{{ movie.Rated }}</span>
+        }
+        @if (hasValue(movie.Runtime)) {
+          <span class="pill pill--muted">{{ movie.Runtime }}</span>
+        }
+        @if (hasValue(movie.Released)) {
+          <span class="detail-basic__released">{{ movie.Released }}</span>
+        }
+      </div>
+
+      @if (splitGenres(movie.Genre).length) {
+        <ul class="genre-list">
+          @for (g of splitGenres(movie.Genre); track g) {
+            <li class="genre-chip">{{ g }}</li>
+          }
+        </ul>
+      }
+    </div>
+
+    <div class="detail-rest">
+      @if (movie.Ratings?.length) {
+        <section class="section ratings" aria-label="Scores">
+          @for (r of movie.Ratings; track r.Source) {
+            <div class="rating-card">
+              <span class="rating-card__value">{{ r.Value }}</span>
+              <span class="rating-card__label">{{ ratingShortLabel(r.Source) }}</span>
+            </div>
+          }
+        </section>
+      }
+
+      @if (hasValue(movie.imdbVotes)) {
+        <div class="meta-inline">
+          <span class="meta-inline__item">{{ movie.imdbVotes }} IMDb votes</span>
+        </div>
+      }
+
+      @if (hasValue(movie.Plot)) {
+        <section class="section">
+          <h2 class="section__title">Synopsis</h2>
+          <p class="plot">{{ movie.Plot }}</p>
+        </section>
+      }
+
+      <section class="section info-grid">
+        @if (hasValue(movie.Director)) {
+          <div class="info-row">
+            <span class="info-row__label">Director</span>
+            <span class="info-row__value">{{ movie.Director }}</span>
+          </div>
+        }
+        @if (hasValue(movie.Writer)) {
+          <div class="info-row">
+            <span class="info-row__label">Writer</span>
+            <span class="info-row__value">{{ movie.Writer }}</span>
+          </div>
+        }
+        @if (hasValue(movie.Actors)) {
+          <div class="info-row">
+            <span class="info-row__label">Cast</span>
+            <span class="info-row__value">{{ movie.Actors }}</span>
+          </div>
+        }
+        @if (hasValue(movie.Language)) {
+          <div class="info-row">
+            <span class="info-row__label">Language</span>
+            <span class="info-row__value">{{ movie.Language }}</span>
+          </div>
+        }
+        @if (hasValue(movie.Country)) {
+          <div class="info-row">
+            <span class="info-row__label">Country</span>
+            <span class="info-row__value">{{ movie.Country }}</span>
+          </div>
+        }
+        @if (hasValue(movie.BoxOffice)) {
+          <div class="info-row">
+            <span class="info-row__label">Box office</span>
+            <span class="info-row__value">{{ movie.BoxOffice }}</span>
+          </div>
+        }
+        @if (hasValue(movie.Awards)) {
+          <div class="info-row info-row--wide">
+            <span class="info-row__label">Awards</span>
+            <span class="info-row__value">{{ movie.Awards }}</span>
+          </div>
+        }
+      </section>
+
+      <div class="scroll-end-spacer" aria-hidden="true"></div>
+    </div>
+  } @else {
+    <div class="state-empty">
+      <p class="state-empty__text">Loading movie details…</p>
+    </div>
+  }
+</ion-content>

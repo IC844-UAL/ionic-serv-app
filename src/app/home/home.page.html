@@ -1,0 +1,45 @@
+<ion-header class="home-header">
+  <ion-toolbar>
+    <ion-title>Movie Search</ion-title>
+    <ion-badge slot="end" class="fav-badge ion-margin-end">
+      <ion-icon name="heart" class="fav-badge__icon"></ion-icon>
+      {{ movieService.favoriteCount() }}
+    </ion-badge>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="home-content" [fullscreen]="true">
+  <ion-searchbar
+    class="home-search"
+    (ionInput)="onSearch($event)"
+    debounce="500"
+    placeholder="Search for movies..."
+    animated="true">
+  </ion-searchbar>
+
+  <div class="movie-grid">
+    @for (movie of movieService.movies(); track movie.imdbID) {
+      <a class="movie-card" [routerLink]="['/details', movie.imdbID]">
+        <div class="movie-card__poster-wrap">
+          @if (posterSrc(movie); as src) {
+            <img
+              class="movie-card__poster"
+              [src]="src"
+              [alt]="movie.Title"
+              loading="lazy"
+              referrerpolicy="no-referrer"
+              (error)="onPosterError(movie.imdbID)" />
+          } @else {
+            <div class="movie-card__poster movie-card__poster--placeholder" aria-hidden="true"></div>
+          }
+        </div>
+        <div class="movie-card__meta">
+          <span class="movie-card__title">{{ movie.Title }}</span>
+          <span class="movie-card__year">{{ movie.Year }}</span>
+        </div>
+      </a>
+    } @empty {
+      <p class="movie-grid__empty">No results found. Try searching for a movie!</p>
+    }
+  </div>
+</ion-content>
