@@ -1,0 +1,38 @@
+name: TWM CI # Name shown in the GitHub Actions UI
+
+on:
+  push:
+    branches: [main] # Run this workflow when code is pushed to main
+  pull_request:
+    branches: [main] # Run this workflow when a PR targets main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest # Use a fresh Ubuntu runner provided by GitHub
+
+    defaults:
+      run:
+        working-directory: servApp # Execute all run commands inside the servApp folder
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4 # Downloads your repository code into the runner
+
+      - name: Setup Node
+        uses: actions/setup-node@v4 # Installs Node.js on the runner
+        with:
+          node-version: 20 # Node version used for install/build/test
+          cache: npm # Enables npm dependency caching for faster builds
+          cache-dependency-path: servApp/package-lock.json # Cache key based on lockfile
+
+      - name: Install dependencies
+        run: npm ci # Clean, deterministic install from package-lock.json (best for CI)
+
+      - name: Lint
+        run: npm run lint # Runs ESLint to catch style/errors early
+
+      - name: Test
+        run: npm test -- --watch=false --browsers=ChromeHeadless # Runs Angular/Karma tests once in headless Chrome
+
+      - name: Build
+        run: npm run build # Compiles the Angular/Ionic app to ensure production build succeeds
