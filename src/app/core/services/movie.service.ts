@@ -26,8 +26,16 @@ export class MovieService {
   searchMovies(title: string) {
     this.http.get<OMDbSearchApiResponse>(`${this.API_URL}&s=${title}`)
       .subscribe(response => {
-        if (response.Response === 'True') {
-          this._movies.set(response.Search); 
+        if (response.Response === 'True' && response.Search) {
+          // Remove duplicates returned by OMDb (same imdbID multiple times)
+          const unique = new Map<string, OMDbMovie>();
+          for (const m of response.Search) {
+            if (!m?.imdbID) continue;
+            if (!unique.has(m.imdbID)) {
+              unique.set(m.imdbID, m);
+            }
+          }
+          this._movies.set(Array.from(unique.values()));
         } else {
           this._movies.set([]);
         }
